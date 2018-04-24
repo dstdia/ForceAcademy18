@@ -1,0 +1,81 @@
+version: 2
+jobs:
+    setup-dx-environment:
+        machine: true
+        working_directory: ~/ci_app
+        environment:
+          # from https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_install_cli_standalone.htm
+          # and https://developer.salesforce.com/media/salesforce-cli/manifest.json
+          - DX_CLI_URL: https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
+          # - BASH_ENV: ~/.bashrc
+        steps:
+        - run:
+            name: Download and Install CLI
+            command: |
+                cd ~/
+                mkdir sfdx
+                wget -qO- $DX_CLI_URL | tar xJ -C sfdx --strip-components 1
+                ./sfdx/install
+                sfdx
+                mkdir ~/tmp
+        - run:
+            name: create tmp dir and server key; check server key
+            command: |
+                mkdir ~/tmp/sfdx-keys
+                echo $HUB_HEXKEY | xxd -r -ps >> ~/tmp/sfdx-keys/server.key;
+                openssl rsa -in ~/tmp/sfdx-keys/server.key -check -noout
+                cat ~/tmp/sfdx-keys/server.key
+                printenv HUB_USER
+                printenv HUB_CONSUMERKEY
+        - run:
+            name: Authenticate Dev Hub
+            command: |
+                sfdx force:auth:jwt:grant --clientid $HUB_CONSUMERKEY --jwtkeyfile ~/tmp/sfdx-keys/server.key --username $HUB_USER --setdefaultdevhubusername --setalias hub
+        - save_cache: 
+            key: sfdx-$CIRCLE_BUILD_NUM
+            paths: 
+                - ./.sfdx
+        - persist_to_workspace:
+            root: ~/
+            paths:
+                - .sfdx/*
+                - sfdx/*
+                - tmp/*
+        - store_artifacts:
+            path: ~/.sfdx/sfdx.log
+            destination: sfdx-logs
+
+    tests:
+        machine: true
+        environment:
+          #- BASH_ENV: ~/.bashrc
+        steps: 
+            - checkout
+            - attach_workspace:
+                at: ~/
+            - restore_cache:
+                    keys: 
+                        - sfdx-$CIRCLE_BUILD_NUM
+            - run:
+                name: Update PATH and Define Environment Variable at Runtime
+                command: |
+                    echo 'export PATH=/home/circleci/sfdx/bin:$PATH' >> $BASH_ENV
+            - run:
+                name: Create a fresh scratch org 
+                command: sfdx force:org:create -f config/project-scratch-def.json -a testOrg -s
+            - run: 
+                name: Push source and run tests
+                command: |
+                    sfdx force:source:push -u testOrg
+                    sfdx force:apex:test:run -u testOrg -l RunLocalTests -r human -w 10 -c
+            - run: 
+                name: Teardown 
+                command: sfdx force:org:delete -p -u testOrg
+workflows:
+  version: 2
+  run_build:
+    jobs:
+      - setup-dx-environment
+      - tests:
+          requires: 
+                - setup-dx-environment
