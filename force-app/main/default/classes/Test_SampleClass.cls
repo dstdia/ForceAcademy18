@@ -5,7 +5,7 @@ private class Test_SampleClass {
 	private static void testMethodOne() {
 		
 		Test.startTest();
-		System.assert('something', SampleClass.sampleMethod('something'));
+		System.assertEquals('something', SampleClass.sampleMethod('something'));
 		Test.stopTest();
 
     }
