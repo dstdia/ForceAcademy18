@@ -31,7 +31,7 @@ jobs:
             name: Authenticate Dev Hub
             command: |
                 sfdx force:auth:jwt:grant --clientid $HUB_CONSUMERKEY --jwtkeyfile ~/tmp/sfdx-keys/server.key --username $HUB_USER --setdefaultdevhubusername --setalias hub
-                sfdx force:auth:jwt:grant --clientid $DEPLOY_CONSUMERKEY --jwtkeyfile ~/tmp/sfdx-keys/server.key --username $DEPLOY_USER --setdefaultdevhubusername --setalias deploytarget
+                sfdx force:auth:jwt:grant --clientid $DEPLOY_CONSUMERKEY --jwtkeyfile ~/tmp/sfdx-keys/server.key --username $DEPLOY_USER --setalias deploytarget
         - save_cache: 
             key: sfdx-$CIRCLE_BUILD_NUM
             paths: 
