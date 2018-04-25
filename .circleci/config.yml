@@ -91,7 +91,7 @@ jobs:
                 name: Convert SFDX source to Metadata Bundle
                 command: sfdx force:source:convert -d src-$CIRCLE_BUILD_NUM
             - run:
-                name: Deploy Metadata Bundle to target
+                name: Deploy Metadata Bundle to target org
                 command: |
                     sfdx force:mdapi:deploy -u deploytarget -d src-$CIRCLE_BUILD_NUM -l RunLocalTests -w 10
 workflows:
