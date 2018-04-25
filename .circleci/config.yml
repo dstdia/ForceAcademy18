@@ -31,6 +31,7 @@ jobs:
             name: Authenticate Dev Hub
             command: |
                 sfdx force:auth:jwt:grant --clientid $HUB_CONSUMERKEY --jwtkeyfile ~/tmp/sfdx-keys/server.key --username $HUB_USER --setdefaultdevhubusername --setalias hub
+                sfdx force:auth:jwt:grant --clientid $DEPLOY_CONSUMERKEY --jwtkeyfile ~/tmp/sfdx-keys/server.key --username $DEPLOY_USER --setdefaultdevhubusername --setalias deploytarget
         - save_cache: 
             key: sfdx-$CIRCLE_BUILD_NUM
             paths: 
@@ -71,6 +72,28 @@ jobs:
             - run: 
                 name: Teardown 
                 command: sfdx force:org:delete -p -u testOrg
+    deploy:
+        machine: true
+        environment:
+          #- BASH_ENV: ~/.bashrc
+        steps:
+            - checkout
+            - attach_workspace:
+                at: ~/
+            - restore_cache:
+                    keys:
+                        - sfdx-$CIRCLE_BUILD_NUM
+            - run:
+                name: Update PATH and Define Environment Variable at Runtime
+                command: |
+                    echo 'export PATH=/home/circleci/sfdx/bin:$PATH' >> $BASH_ENV
+            - run:
+                name: Convert SFDX source to Metadata Bundle
+                command: sfdx force:source:convert -d src-$CIRCLE_BUILD_NUM
+            - run:
+                name: Deploy Metadata Bundle to target
+                command: |
+                    sfdx force:mdapi:deploy -u deploytarget -d src-$CIRCLE_BUILD_NUM -l RunLocalTests -w 10
 workflows:
   version: 2
   run_build:
@@ -79,3 +102,9 @@ workflows:
       - tests:
           requires: 
                 - setup-dx-environment
+      - deploy:
+          filters:
+            branches:
+              only: master
+          requires:
+                - tests
