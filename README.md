@@ -16,7 +16,7 @@ Nice to have:
 ## Dev, Build and Test
 
 ## Build Status
-        [![CircleCI](https://circleci.com/gh/dstdia/ForceAcademy18.svg?style=svg)](https://circleci.com/gh/dstdia/ForceAcademy18)
+![CircleCI](https://circleci.com/gh/dstdia/ForceAcademy18.svg?style=svg)
 
 ## Resources
 
