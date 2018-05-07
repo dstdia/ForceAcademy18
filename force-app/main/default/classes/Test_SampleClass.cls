@@ -9,4 +9,13 @@ private class Test_SampleClass {
 		Test.stopTest();
 
     }
+
+	@IsTest
+	private static void testMethodFailingOnPurpose() {
+
+		Test.startTest();
+		System.assertNotEquals('something', SampleClass.BADLY_Named_Method('something'));
+		Test.stopTest();
+
+	}
 }

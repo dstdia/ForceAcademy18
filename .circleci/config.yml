@@ -16,10 +16,10 @@ jobs:
                 wget -qO- $DX_CLI_URL | tar xJ -C sfdx --strip-components 1
                 ./sfdx/install
                 sfdx
-                mkdir ~/tmp
         - run:
             name: create tmp dir and server key; check server key
             command: |
+                mkdir ~/tmp
                 mkdir ~/tmp/sfdx-keys
                 echo $HUB_HEXKEY | xxd -r -ps >> ~/tmp/sfdx-keys/server.key;
                 openssl rsa -in ~/tmp/sfdx-keys/server.key -check -noout
