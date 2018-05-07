@@ -7,7 +7,6 @@ jobs:
           # from https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_install_cli_standalone.htm
           # and https://developer.salesforce.com/media/salesforce-cli/manifest.json
           - DX_CLI_URL: https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
-          # - BASH_ENV: ~/.bashrc
         steps:
         - run:
             name: Download and Install CLI
@@ -24,9 +23,7 @@ jobs:
                 mkdir ~/tmp/sfdx-keys
                 echo $HUB_HEXKEY | xxd -r -ps >> ~/tmp/sfdx-keys/server.key;
                 openssl rsa -in ~/tmp/sfdx-keys/server.key -check -noout
-                cat ~/tmp/sfdx-keys/server.key
-                printenv HUB_USER
-                printenv HUB_CONSUMERKEY
+
         - run:
             name: Authenticate Dev Hub
             command: |
@@ -48,9 +45,7 @@ jobs:
 
     tests:
         machine: true
-        environment:
-          #- BASH_ENV: ~/.bashrc
-        steps: 
+        steps:
             - checkout
             - attach_workspace:
                 at: ~/
@@ -74,8 +69,6 @@ jobs:
                 command: sfdx force:org:delete -p -u testOrg
     deploy:
         machine: true
-        environment:
-          #- BASH_ENV: ~/.bashrc
         steps:
             - checkout
             - attach_workspace:
