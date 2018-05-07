@@ -4,7 +4,7 @@ public with sharing class SampleClass {
         return inputData;
     }
 
-    public static  String BADLY_Named_Method(String inputData) {
+    public static  String properlyNamedMethod(String inputData) {
         return inputData;
     }
 
