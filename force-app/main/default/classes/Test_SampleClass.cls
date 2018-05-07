@@ -14,7 +14,7 @@ private class Test_SampleClass {
 	private static void testMethodFailingOnPurpose() {
 
 		Test.startTest();
-		System.assertNotEquals('something', SampleClass.BADLY_Named_Method('something'));
+		System.assertEquals('something', SampleClass.BADLY_Named_Method('something'));
 		Test.stopTest();
 
 	}
